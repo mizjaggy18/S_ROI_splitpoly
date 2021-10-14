@@ -167,8 +167,8 @@ def main(argv):
                                                       id_terms=id_term_poly))   
                     print(".",end = '',flush=True)
 
-                    #Send Annotation Collection (for this ROI) to Cytomine server in one http request
-                    ca = cytomine_annotations.save()
+                #Send Annotation Collection (for this ROI) to Cytomine server in one http request
+                ca = cytomine_annotations.save()
 
  
         conn.job.update(status=Job.TERMINATED, progress=100, statusComment="Finished.")
