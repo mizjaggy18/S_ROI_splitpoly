@@ -110,7 +110,7 @@ def main(argv):
         print(terms)
 
         id_project=conn.parameters.cytomine_id_project
-        id_image = conn.parameters.cytomine_id_image
+        id_image = conn.parameters.cytomine_id_images
         
         id_term = conn.parameters.cytomine_id_roi_term
         id_term_poly = conn.parameters.cytomine_id_roipoly_term
