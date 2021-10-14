@@ -17,7 +17,6 @@ FROM cytomine/software-python3-base
 #INSTALL
 #RUN apt-get update
 RUN pip install tensorflow==2.5.0
-RUN pip install cv2
 RUN pip install keras
 RUN pip install time
 RUN pip install matplotlib
