@@ -23,6 +23,7 @@ RUN pip install numpy
 RUN pip install shapely
 RUN pip install scipy
 RUN pip install geopandas
+RUN pip install tifffile
 
 
 # Install scripts
