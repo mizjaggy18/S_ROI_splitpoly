@@ -22,6 +22,7 @@ RUN pip install matplotlib
 RUN pip install numpy
 RUN pip install shapely
 RUN pip install scipy
+RUN pip install geopandas
 
 
 # Install scripts
