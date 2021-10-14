@@ -33,7 +33,7 @@ import geopandas
 from glob import glob
 from tifffile import imread
 
-from cytomine import Cytomine
+from cytomine import Cytomine, models, CytomineJob
 from cytomine.models import Annotation, AnnotationTerm, AnnotationCollection, ImageInstanceCollection, Job, Project, ImageInstance, Property
 from cytomine.models.ontology import Ontology, OntologyCollection, Term, RelationTerm, TermCollection
 # from cytomine.models.property import Tag, TagCollection, PropertyCollection
