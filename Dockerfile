@@ -18,7 +18,6 @@ FROM cytomine/software-python3-base
 #RUN apt-get update
 RUN pip install tensorflow==2.5.0
 RUN pip install keras
-RUN pip install time
 RUN pip install matplotlib
 RUN pip install numpy
 RUN pip install shapely
