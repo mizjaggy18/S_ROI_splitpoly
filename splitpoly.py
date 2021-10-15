@@ -153,22 +153,22 @@ def main(argv):
 
 
                 print(output)
-                cytomine_annotations = AnnotationCollection()
+#                 cytomine_annotations = AnnotationCollection()
                 
                 for annotation in output:
                     # print(image.id)
                     # print(id_image_instance)
                     # annotation_copy = Annotation(location=annotation.location, id_image=annotation.id, id_project=id_project).save()
-#                     annotation_poly = Annotation(location=annotation.wkt, id_image=id_image, id_project=id_project).save()  
-#                     AnnotationTerm(annotation_poly.id, id_term_poly).save()
-                    cytomine_annotations.append(Annotation(location=annotation.wkt,#location=roi_geometry,
-                                                      id_image=id_image,#conn.parameters.cytomine_id_image,
-                                                      id_project=id_project,
-                                                      id_terms=id_term_poly))   
+                    annotation_poly = Annotation(location=annotation.wkt, id_image=id_image, id_project=id_project).save()  
+                    AnnotationTerm(conn.annotation_poly.id, id_term_poly).save()
+#                     cytomine_annotations.append(Annotation(location=annotation.wkt,#location=roi_geometry,
+#                                                       id_image=id_image,#conn.parameters.cytomine_id_image,
+#                                                       id_project=id_project,
+#                                                       id_terms=id_term_poly))   
                     print(".",end = '',flush=True)
 
                 #Send Annotation Collection (for this ROI) to Cytomine server in one http request
-                ca = cytomine_annotations.save()
+#                 cytomine_annotations.save()
 
  
         conn.job.update(status=Job.TERMINATED, progress=100, statusComment="Finished.")
