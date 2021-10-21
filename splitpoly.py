@@ -159,7 +159,7 @@ def main(argv):
                     # print(image.id)
                     # print(id_image_instance)
                     # annotation_copy = Annotation(location=annotation.location, id_image=annotation.id, id_project=id_project).save()
-                    annotation_poly = Annotation(location=annotation.wkt, id_image=id_image, id_project=id_project, id_terms=id_term_poly).save()  
+                    annotation_poly = Annotation(location=annotation.wkt, id_image=id_image, id_terms=id_term_poly).save()  
 #                     AnnotationTerm(annotation_poly.id, id_term_poly).save()
 #                     if id_term_poly:
 #                         AnnotationTerm(annotation_poly.id, id_term_poly).save()
