@@ -114,6 +114,7 @@ def main(argv):
         
         id_term = conn.parameters.cytomine_id_roi_term
         id_term_poly = conn.parameters.cytomine_id_roipoly_term
+        print(id_term_poly)
 
 
         roi_annotations = AnnotationCollection()
@@ -158,9 +159,9 @@ def main(argv):
                 for annotation in output:
                     # print(image.id)
                     # print(id_image_instance)
-                    # annotation_copy = Annotation(location=annotation.location, id_image=annotation.id, id_project=id_project).save()
-                    annotation_poly = Annotation(location=annotation.wkt, id_image=id_image, id_terms=id_term_poly).save()  
-#                     AnnotationTerm(annotation_poly.id, id_term_poly).save()
+#                     annotation_copy = Annotation(location=annotation.location, id_image=annotation.id, id_project=id_project).save()
+                    annotation_poly = Annotation(location=annotation.wkt, id_image=id_image, id_project=id_project, id_terms=id_term_poly).save()  
+                    AnnotationTerm(annotation_poly.id, id_term_poly).save()
 #                     if id_term_poly:
 #                         AnnotationTerm(annotation_poly.id, id_term_poly).save()
 
@@ -168,7 +169,7 @@ def main(argv):
 #                                                       id_image=id_image,#conn.parameters.cytomine_id_image,
 #                                                       id_project=id_project,
 #                                                       id_terms=id_term_poly))   
-                    print(".",end = '',flush=True)
+#                     print(".",end = '',flush=True)
 
                 #Send Annotation Collection (for this ROI) to Cytomine server in one http request
 #                 cytomine_annotations.save()
