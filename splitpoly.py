@@ -33,9 +33,9 @@ import geopandas
 from glob import glob
 from tifffile import imread
 
-from cytomine import Cytomine, models, CytomineJob
-from cytomine.models import Annotation, AnnotationTerm, AnnotationCollection, ImageInstanceCollection, Job, Project, ImageInstance, Property
-from cytomine.models.ontology import Ontology, OntologyCollection, Term, RelationTerm, TermCollection
+from cytomine import Cytomine, CytomineJob
+from cytomine.models import Property, Annotation, AnnotationTerm, AnnotationCollection, Job, TermCollection
+# from cytomine.models.ontology import Ontology, OntologyCollection, Term, RelationTerm, TermCollection
 # from cytomine.models.property import Tag, TagCollection, PropertyCollection
 # from cytomine.utilities.software import parse_domain_list, str2bool, setup_classify, stringify
 
@@ -108,13 +108,19 @@ def main(argv):
         terms = TermCollection().fetch_with_filter("project", conn.parameters.cytomine_id_project)
         conn.job.update(status=Job.RUNNING, progress=1, statusComment="Terms collected...")
         print(terms)
+        for term in terms:
+            print("ID: {} | Name: {}".format(
+                term.id,
+                term.name
+            )) 
 
         id_project=conn.parameters.cytomine_id_project
         id_image = conn.parameters.cytomine_id_images
         
         id_term = conn.parameters.cytomine_id_roi_term
         id_term_poly = conn.parameters.cytomine_id_roipoly_term
-        print(id_term_poly)
+
+        print('parameters:',id_project, id_image, id_term, id_term_poly)
 
 
         roi_annotations = AnnotationCollection()
@@ -147,37 +153,26 @@ def main(argv):
                 roi_png_filename=os.path.join(roi_path+str(roi.id)+'.png')
                 # conn.job.update(status=Job.RUNNING, progress=20, statusComment=roi_png_filename)
                 print("roi_png_filename: %s" %roi_png_filename)
-
-
-                output = _quadrat_cut_geometry(roi_geometry, quadrat_width=2048, min_num=1)                 
-
-
-
+                output = _quadrat_cut_geometry(roi_geometry, quadrat_width=2048, min_num=1)  
                 print(output)
 #                 cytomine_annotations = AnnotationCollection()
                 
-                for annotation in output:
-                    # print(image.id)
-                    # print(id_image_instance)
-#                     annotation_copy = Annotation(location=annotation.location, id_image=annotation.id, id_project=id_project).save()
-                    annotation_poly = Annotation(location=annotation.wkt, id_image=id_image, id_project=id_project, id_terms=id_term_poly).save()  
-                    AnnotationTerm(annotation_poly.id, id_term_poly).save()
-#                     if id_term_poly:
-#                         AnnotationTerm(annotation_poly.id, id_term_poly).save()
-
-#                     cytomine_annotations.append(Annotation(location=annotation.wkt,#location=roi_geometry,
-#                                                       id_image=id_image,#conn.parameters.cytomine_id_image,
-#                                                       id_project=id_project,
-#                                                       id_terms=id_term_poly))   
-#                     print(".",end = '',flush=True)
-
-                #Send Annotation Collection (for this ROI) to Cytomine server in one http request
-#                 cytomine_annotations.save()
+                annotations = AnnotationCollection()
+                for annotation_poly in output:                  
+                    annotations.append(Annotation(
+                        location=annotation_poly.wkt,
+                        id_terms=[id_term_poly],
+                        id_project=id_project,
+                        id_image=id_image
+                    ))
+                annotations.save()
+                print(".",end = '',flush=True)
 
  
         conn.job.update(status=Job.TERMINATED, progress=100, statusComment="Finished.")
 
 if __name__ == "__main__":
+    import sys
     main(sys.argv[1:])
 
                   
