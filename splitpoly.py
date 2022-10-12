@@ -119,6 +119,8 @@ def main(argv):
         
         id_term = conn.parameters.cytomine_id_roi_term
         id_term_poly = conn.parameters.cytomine_id_roipoly_term
+        
+        poly_sides = conn.parameters.cytomine_poly_sides
 
         print('parameters:',id_project, id_image, id_term, id_term_poly)
 
@@ -153,7 +155,7 @@ def main(argv):
                 roi_png_filename=os.path.join(roi_path+str(roi.id)+'.png')
                 # conn.job.update(status=Job.RUNNING, progress=20, statusComment=roi_png_filename)
                 print("roi_png_filename: %s" %roi_png_filename)
-                output = _quadrat_cut_geometry(roi_geometry, quadrat_width=2048, min_num=1)  
+                output = _quadrat_cut_geometry(roi_geometry, quadrat_width=poly_sides, min_num=1)  
                 print(output)
 #                 cytomine_annotations = AnnotationCollection()
                 
