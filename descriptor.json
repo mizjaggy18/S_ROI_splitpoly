@@ -5,7 +5,7 @@
     "image": "mizjaggy18/s_roi_splitpoly",
     "type": "singularity"
   },
-  "command-line": "echo [CYTOMINE_HOST] [CYTOMINE_PUBLIC_KEY] [CYTOMINE_PRIVATE_KEY] [CYTOMINE_ID_PROJECT] [CYTOMINE_ID_SOFTWARE] [CYTOMINE_ID_IMAGES] [CYTOMINE_ID_ROI_TERM] [CYTOMINE_ID_ROIPOLY_TERM]",
+  "command-line": "echo [CYTOMINE_HOST] [CYTOMINE_PUBLIC_KEY] [CYTOMINE_PRIVATE_KEY] [CYTOMINE_ID_PROJECT] [CYTOMINE_ID_SOFTWARE] [CYTOMINE_ID_IMAGES] [CYTOMINE_ID_ROI_TERM] [CYTOMINE_ID_ROIPOLY_TERM] [CYTOMINE_POLY_SIDES]",
   "inputs": [
     {
       "id": "cytomine_host",
@@ -87,6 +87,16 @@
       "uri": "/api/ontology/$currentOntology$/term.json",
       "uri-print-attribute": "name",
       "uri-sort-attribute": "name"
+    },
+    {
+      "id": "cytomine_poly_sides",
+      "value-key": "[@ID]",
+      "command-line-flag": "--@id",
+      "name": "Polygon sides in px",
+      "description": "Size of polygon sides in px. e.g.: 2048 to get max of 2048 x 2048 sized regions",
+      "optional": false,
+      "type": "Number",
+      "default-value": 2048
     }    
   ],
 
