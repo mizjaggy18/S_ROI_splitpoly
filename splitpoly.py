@@ -115,8 +115,15 @@ def main(argv):
                 term.name
             )) 
 
+        list_imgs = []
+        if conn.parameters.cytomine_id_images == 'all':
+            for image in images:
+                list_imgs.append(int(image.id))
+        else:
+            list_imgs = [int(id_img) for id_img in conn.parameters.cytomine_id_images.split(',')]
+            print(list_imgs)
+        
         id_project=conn.parameters.cytomine_id_project
-        id_image = conn.parameters.cytomine_id_images
         id_user=conn.parameters.cytomine_id_user
         
         
@@ -125,55 +132,55 @@ def main(argv):
         
         poly_sides = conn.parameters.cytomine_poly_sides
 
-        print('parameters:',id_project, id_image, id_term, id_term_poly)
+        for id_image in list_imgs:
+            print('parameters:',id_project, id_image, id_term, id_term_poly)
 
+            roi_annotations = AnnotationCollection()
+            roi_annotations.project = id_project
+            roi_annotations.image = id_image
+            roi_annotations.term = id_term
+            roi_annotations.showWKT = True
+            roi_annotations.showMeta = True
+            roi_annotations.showGIS = True
+            roi_annotations.showTerm = True
+            if id_user:
+                roi_annotations.user = id_user
+            roi_annotations.fetch()
+            print(roi_annotations)
 
-        roi_annotations = AnnotationCollection()
-        roi_annotations.project = id_project
-        roi_annotations.image = id_image
-        roi_annotations.term = id_term
-        roi_annotations.showWKT = True
-        roi_annotations.showMeta = True
-        roi_annotations.showGIS = True
-        roi_annotations.showTerm = True
-        if id_user:
-            roi_annotations.user = id_user
-        roi_annotations.fetch()
-        print(roi_annotations)
+            conn.job.update(status=Job.RUNNING, progress=10, statusComment="Running splitpoly on ROI-WSI...")
 
-        conn.job.update(status=Job.RUNNING, progress=10, statusComment="Running splitpoly on ROI-WSI...")
-
-        for i, roi in enumerate(roi_annotations):
-                #Get Cytomine ROI coordinates for remapping to whole-slide
-                #Cytomine cartesian coordinate system, (0,0) is bottom left corner                
-                print("----------------------------Cells------------------------------")
-                roi_geometry = wkt.loads(roi.location)
-                # print("ROI Geometry from Shapely: {}".format(roi_geometry))
-                print("ROI Bounds")
-                print(roi_geometry.bounds)
-                minx=roi_geometry.bounds[0]
-                miny=roi_geometry.bounds[3]
-                #Dump ROI image into local PNG file
-                # roi_path=os.path.join(working_path,str(roi_annotations.project)+'/'+str(roi_annotations.image)+'/'+str(roi.id))
-                roi_path=os.path.join(working_path,str(roi_annotations.project)+'/'+str(roi_annotations.image)+'/')
-                print(roi_path)
-                roi_png_filename=os.path.join(roi_path+str(roi.id)+'.png')
-                # conn.job.update(status=Job.RUNNING, progress=20, statusComment=roi_png_filename)
-                print("roi_png_filename: %s" %roi_png_filename)
-                output = _quadrat_cut_geometry(roi_geometry, quadrat_width=poly_sides, min_num=1)  
-                print(output)
-#                 cytomine_annotations = AnnotationCollection()
-                
-                annotations = AnnotationCollection()
-                for annotation_poly in output:                  
-                    annotations.append(Annotation(
-                        location=annotation_poly.wkt,
-                        id_terms=[id_term_poly],
-                        id_project=id_project,
-                        id_image=id_image
-                    ))
-                annotations.save()
-                print(".",end = '',flush=True)
+            for i, roi in enumerate(roi_annotations):
+                    #Get Cytomine ROI coordinates for remapping to whole-slide
+                    #Cytomine cartesian coordinate system, (0,0) is bottom left corner                
+                    print("----------------------------Cells------------------------------")
+                    roi_geometry = wkt.loads(roi.location)
+                    # print("ROI Geometry from Shapely: {}".format(roi_geometry))
+                    print("ROI Bounds")
+                    print(roi_geometry.bounds)
+                    minx=roi_geometry.bounds[0]
+                    miny=roi_geometry.bounds[3]
+                    #Dump ROI image into local PNG file
+                    # roi_path=os.path.join(working_path,str(roi_annotations.project)+'/'+str(roi_annotations.image)+'/'+str(roi.id))
+                    roi_path=os.path.join(working_path,str(roi_annotations.project)+'/'+str(roi_annotations.image)+'/')
+                    print(roi_path)
+                    roi_png_filename=os.path.join(roi_path+str(roi.id)+'.png')
+                    print("roi_png_filename: %s" %roi_png_filename)
+                    output = _quadrat_cut_geometry(roi_geometry, quadrat_width=poly_sides, min_num=1)  
+                    print("Output polygons: ",output)
+   
+                    annotations = AnnotationCollection()
+                    print("Annotation collections: ", annotations)
+                    if output:
+                        for annotation_poly in output:                  
+                            annotations.append(Annotation(
+                                location=annotation_poly.wkt,
+                                id_terms=[id_term_poly],
+                                id_project=id_project,
+                                id_image=id_image
+                            ))
+                        annotations.save()
+                        print(".",end = '',flush=True)
 
  
         conn.job.update(status=Job.TERMINATED, progress=100, statusComment="Finished.")
