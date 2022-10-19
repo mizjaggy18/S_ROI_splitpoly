@@ -5,7 +5,7 @@
     "image": "mizjaggy18/s_roi_splitpoly",
     "type": "singularity"
   },
-  "command-line": "echo [CYTOMINE_HOST] [CYTOMINE_PUBLIC_KEY] [CYTOMINE_PRIVATE_KEY] [CYTOMINE_ID_PROJECT] [CYTOMINE_ID_SOFTWARE] [CYTOMINE_ID_IMAGES] [CYTOMINE_ID_ROI_TERM] [CYTOMINE_ID_ROIPOLY_TERM] [CYTOMINE_POLY_SIDES]",
+  "command-line": "echo [CYTOMINE_HOST] [CYTOMINE_PUBLIC_KEY] [CYTOMINE_PRIVATE_KEY] [CYTOMINE_ID_PROJECT] [CYTOMINE_ID_SOFTWARE] [CYTOMINE_ID_IMAGES] [CYTOMINE_ID_ROI_TERM] [CYTOMINE_ID_ROIPOLY_TERM] [CYTOMINE_POLY_SIDES] [CYTOMINE_ID_USER]",
   "inputs": [
     {
       "id": "cytomine_host",
@@ -97,6 +97,19 @@
       "optional": false,
       "type": "Number",
       "default-value": 2048
+    }, 
+    {
+      "id": "cytomine_id_user",
+      "value-key": "[@ID]",
+      "command-line-flag": "--@id",
+      "name": "Cytomine User ID",
+      "description": "Download manual annotations from specific user",
+      "set-by-server": false,
+      "optional": true,      
+      "type": "ListDomain",
+      "uri": "/api/project/$currentProject$/user.json",
+      "uri-sort-attribute": "username",
+      "uri-print-attribute": "username"
     }    
   ],
 
