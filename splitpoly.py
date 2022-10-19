@@ -99,6 +99,7 @@ def main(argv):
     with CytomineJob.from_cli(argv) as conn:
     # with Cytomine(argv) as conn:
         print(conn.parameters)
+        id_user=conn.parameters.cytomine_id_user
 
         conn.job.update(status=Job.RUNNING, progress=0, statusComment="Initialization...")
         base_path = "{}".format(os.getenv("HOME")) # Mandatory for Singularity
@@ -116,6 +117,8 @@ def main(argv):
 
         id_project=conn.parameters.cytomine_id_project
         id_image = conn.parameters.cytomine_id_images
+        id_user=conn.parameters.cytomine_id_user
+        
         
         id_term = conn.parameters.cytomine_id_roi_term
         id_term_poly = conn.parameters.cytomine_id_roipoly_term
@@ -133,6 +136,8 @@ def main(argv):
         roi_annotations.showMeta = True
         roi_annotations.showGIS = True
         roi_annotations.showTerm = True
+        if id_user:
+            roi_annotations.user = id_user
         roi_annotations.fetch()
         print(roi_annotations)
 
