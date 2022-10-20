@@ -180,7 +180,7 @@ def run(cyto_job, parameters):
                         x=range(1,len(output_poly))
                         increment=np.multiply(1500,x)  
                     else:
-                        increment=np.array[0]
+                        increment=np.array([0])
 
                     annotations = AnnotationCollection()
                     print("Annotation collections: ", annotations)
