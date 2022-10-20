@@ -178,13 +178,17 @@ def run(cyto_job, parameters):
                     
                     annotations = AnnotationCollection()
                     print("Annotation collections: ", annotations)
-                    for i, annotation_poly in enumerate(output):   
-                        annotations.append(Annotation(location=annotation_poly.wkt,
-                                                      id_image=id_image,
-                                                      id_project=id_project,
-                                                      id_terms=[id_term_poly]))
-                        print(".",end = '',flush=True)
-                        annotations.save()
+                    for annotation_poly in output: 
+                        annotation=Annotation(location=annotation_poly.wkt,
+                                   id_image=id_image,
+                                   id_project=id_project).save()
+                        AnnotationTerm(annotation.id, [id_term_poly]).save()
+#                         annotations.append(Annotation(location=annotation_poly.wkt,
+#                                                       id_image=id_image,
+#                                                       id_project=id_project,
+#                                                       id_terms=[id_term_poly]))
+#                         print(".",end = '',flush=True)
+#                     annotations.save()
                             
                                            
     finally:
