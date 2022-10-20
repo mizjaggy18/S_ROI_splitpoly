@@ -88,10 +88,12 @@ def _quadrat_cut_geometry(geometry, quadrat_width, min_num=3):
     lines = vertical_lines + horizont_lines
 
     # recursively split the geometry by each quadrat line
+    count=0
     for line in lines:
+        count=count+1
         geometry = MultiPolygon(split(geometry, line))
 
-    return geometry
+    return geometry, count
 
 #============================================
 
@@ -125,8 +127,8 @@ def run(cyto_job, parameters):
     
     job.update(status=Job.RUNNING, progress=30, statusComment="Images gathered...")
          
-    id_project=parameters.cytomine_id_project
-    id_user=parameters.cytomine_id_user   
+    id_project = parameters.cytomine_id_project
+    id_user = parameters.cytomine_id_user   
     id_term = parameters.cytomine_id_roi_term
     id_term_poly = parameters.cytomine_id_roipoly_term
     poly_sides = parameters.cytomine_poly_sides
@@ -172,21 +174,19 @@ def run(cyto_job, parameters):
                     print(roi_path)
                     roi_png_filename=os.path.join(roi_path+str(roi.id)+'.png')
                     print("roi_png_filename: %s" %roi_png_filename)
-                    output = _quadrat_cut_geometry(roi_geometry, quadrat_width=poly_sides, min_num=1)  
-                    print("Output polygons: ",output)
+                    output,count = _quadrat_cut_geometry(roi_geometry, quadrat_width=poly_sides, min_num=1)  
+                    print("Output polygons: ",count)
 
                     annotations = AnnotationCollection()
                     print("Annotation collections: ", annotations)
-                    if output:
-                        for annotation_poly in output:                  
-                            annotations.append(Annotation(
-                                location=annotation_poly.wkt,
-                                id_terms=[id_term_poly],
-                                id_project=id_project,
-                                id_image=id_image
-                            ))
-                        annotations.save()
-                        print(".",end = '',flush=True)                        
+                    for annotation_poly in output:                  
+                        annotations.append(Annotation(location=annotation_poly.wkt,
+                                                      id_image=id_image,
+                                                      id_project=id_project,
+                                                      id_terms=[id_term_poly]))
+                        print(".",end = '',flush=True) 
+                    annotations.save()
+                                           
     finally:
         job.update(progress=100, statusComment="Run complete.")
         shutil.rmtree(working_path, ignore_errors=True)
