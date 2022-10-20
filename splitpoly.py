@@ -175,15 +175,26 @@ def run(cyto_job, parameters):
                     output = _quadrat_cut_geometry(roi_geometry, quadrat_width=poly_sides, min_num=1)  
                     output_poly = list(output)
                     print("Output polygons: ", len(output_poly))
+                    
+                    if len(output_poly)>1500:
+                        x=range(1,len(output_poly))
+                        increment=np.multiply(1500,x)  
+                    else:
+                        increment=0
 
                     annotations = AnnotationCollection()
                     print("Annotation collections: ", annotations)
-                    for annotation_poly in output:                  
+                    for i, annotation_poly in enumerate(output):   
+                        for inc in increment:
+                            if i==inc:
+                                print("i==", inc)
+                                annotations.save()
+                                
                         annotations.append(Annotation(location=annotation_poly.wkt,
                                                       id_image=id_image,
                                                       id_project=id_project,
                                                       id_terms=[id_term_poly]))
-                        print(".",end = '',flush=True) 
+                        print(".",end = '',flush=True)
                     annotations.save()
                                            
     finally:
