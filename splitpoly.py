@@ -87,13 +87,11 @@ def _quadrat_cut_geometry(geometry, quadrat_width, min_num=3):
     horizont_lines = [LineString([(x_points[0], y), (x_points[-1], y)]) for y in y_points]
     lines = vertical_lines + horizont_lines
 
-    # recursively split the geometry by each quadrat line
-    count=0
+    # recursively split the geometry by each quadrat line    
     for line in lines:
-        count=count+1
         geometry = MultiPolygon(split(geometry, line))
 
-    return geometry, count
+    return geometry
 
 #============================================
 
@@ -123,7 +121,7 @@ def run(cyto_job, parameters):
             list_imgs.append(int(image.id))
     else:
         list_imgs = [int(id_img) for id_img in parameters.cytomine_id_images.split(',')]
-        print(list_imgs)
+        print('Images: ', list_imgs)
     
     job.update(status=Job.RUNNING, progress=30, statusComment="Images gathered...")
          
@@ -141,7 +139,7 @@ def run(cyto_job, parameters):
     try:
 
         for id_image in list_imgs:
-            print('parameters:',id_project, id_image, id_term, id_term_poly)
+            print('Parameters (id_project, id_image, id_term, id_term_poly):',id_project, id_image, id_term, id_term_poly)
 
             roi_annotations = AnnotationCollection()
             roi_annotations.project = id_project
@@ -174,8 +172,9 @@ def run(cyto_job, parameters):
                     print(roi_path)
                     roi_png_filename=os.path.join(roi_path+str(roi.id)+'.png')
                     print("roi_png_filename: %s" %roi_png_filename)
-                    output,count = _quadrat_cut_geometry(roi_geometry, quadrat_width=poly_sides, min_num=1)  
-                    print("Output polygons: ",count)
+                    output = _quadrat_cut_geometry(roi_geometry, quadrat_width=poly_sides, min_num=1)  
+                    output_poly = list(output)
+                    print("Output polygons: ", len(output_poly))
 
                     annotations = AnnotationCollection()
                     print("Annotation collections: ", annotations)
