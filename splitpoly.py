@@ -184,7 +184,7 @@ def run(cyto_job, parameters):
                                                       id_project=id_project,
                                                       id_terms=[id_term_poly]))
                         print(".",end = '',flush=True)
-#                     annotations.save()
+                        annotations.save()
                             
                                            
     finally:
