@@ -22,6 +22,8 @@ from __future__ import unicode_literals
 import logging
 import sys
 from argparse import ArgumentParser
+import logging
+import shutil
 
 import os
 import numpy as np
@@ -33,11 +35,9 @@ import geopandas
 from glob import glob
 from tifffile import imread
 
+import cytomine
 from cytomine import Cytomine, CytomineJob
-from cytomine.models import Property, Annotation, AnnotationTerm, AnnotationCollection, Job, TermCollection
-# from cytomine.models.ontology import Ontology, OntologyCollection, Term, RelationTerm, TermCollection
-# from cytomine.models.property import Tag, TagCollection, PropertyCollection
-# from cytomine.utilities.software import parse_domain_list, str2bool, setup_classify, stringify
+from cytomine.models import Property, Annotation, AnnotationTerm, AnnotationCollection, Job, JobData, TermCollection
 
 
 from PIL import Image
@@ -53,8 +53,8 @@ from scipy.spatial import Voronoi
 
 
 __author__ = "WSH Munirah W Ahmad <wshmunirah@gmail.com>"
-__version__ = "1.0.0"
-# Date created: 25 August 2021
+__version__ = "2.1.0"
+# Date created: 20 Oct 2022
 
 def _quadrat_cut_geometry(geometry, quadrat_width, min_num=3):
     """
@@ -95,42 +95,48 @@ def _quadrat_cut_geometry(geometry, quadrat_width, min_num=3):
 
 #============================================
 
-def main(argv):
-    with CytomineJob.from_cli(argv) as conn:
-    # with Cytomine(argv) as conn:
-        print(conn.parameters)
-        id_user=conn.parameters.cytomine_id_user
+def run(cyto_job, parameters):
+    logging.info("----- ROI Split-poly v%s -----", __version__)
+    logging.info("Entering run(cyto_job=%s, parameters=%s)", cyto_job, parameters)
 
-        conn.job.update(status=Job.RUNNING, progress=0, statusComment="Initialization...")
-        base_path = "{}".format(os.getenv("HOME")) # Mandatory for Singularity
-        working_path = os.path.join(base_path,str(conn.job.id))
+    job = cyto_job.job
+    project = cyto_job.project
+    id_user = parameters.cytomine_id_user
 
+    job.update(status=Job.RUNNING, progress=10, statusComment="Initialization...")
 
-        terms = TermCollection().fetch_with_filter("project", conn.parameters.cytomine_id_project)
-        conn.job.update(status=Job.RUNNING, progress=1, statusComment="Terms collected...")
-        print(terms)
-        for term in terms:
-            print("ID: {} | Name: {}".format(
-                term.id,
-                term.name
-            )) 
+    terms = TermCollection().fetch_with_filter("project", parameters.cytomine_id_project)
+    job.update(status=Job.RUNNING, progress=20, statusComment="Terms collected...")
+    
+    print(terms)
+    for term in terms:
+        print("ID: {} | Name: {}".format(
+            term.id,
+            term.name
+        )) 
 
-        list_imgs = []
-        if conn.parameters.cytomine_id_images == 'all':
-            for image in images:
-                list_imgs.append(int(image.id))
-        else:
-            list_imgs = [int(id_img) for id_img in conn.parameters.cytomine_id_images.split(',')]
-            print(list_imgs)
-        
-        id_project=conn.parameters.cytomine_id_project
-        id_user=conn.parameters.cytomine_id_user
-        
-        
-        id_term = conn.parameters.cytomine_id_roi_term
-        id_term_poly = conn.parameters.cytomine_id_roipoly_term
-        
-        poly_sides = conn.parameters.cytomine_poly_sides
+    list_imgs = []
+    if parameters.cytomine_id_images == 'all':
+        for image in images:
+            list_imgs.append(int(image.id))
+    else:
+        list_imgs = [int(id_img) for id_img in parameters.cytomine_id_images.split(',')]
+        print(list_imgs)
+    
+    job.update(status=Job.RUNNING, progress=30, statusComment="Images gathered...")
+         
+    id_project=parameters.cytomine_id_project
+    id_user=parameters.cytomine_id_user   
+    id_term = parameters.cytomine_id_roi_term
+    id_term_poly = parameters.cytomine_id_roipoly_term
+    poly_sides = parameters.cytomine_poly_sides
+    
+    working_path = os.path.join("tmp", str(job.id))
+    
+    if not os.path.exists(working_path):
+        logging.info("Creating working directory: %s", working_path)
+        os.makedirs(working_path)
+    try:
 
         for id_image in list_imgs:
             print('parameters:',id_project, id_image, id_term, id_term_poly)
@@ -148,7 +154,7 @@ def main(argv):
             roi_annotations.fetch()
             print(roi_annotations)
 
-            conn.job.update(status=Job.RUNNING, progress=10, statusComment="Running splitpoly on ROI-WSI...")
+            job.update(status=Job.RUNNING, progress=40, statusComment="Running splitpoly on ROI-WSI...")
 
             for i, roi in enumerate(roi_annotations):
                     #Get Cytomine ROI coordinates for remapping to whole-slide
@@ -168,7 +174,7 @@ def main(argv):
                     print("roi_png_filename: %s" %roi_png_filename)
                     output = _quadrat_cut_geometry(roi_geometry, quadrat_width=poly_sides, min_num=1)  
                     print("Output polygons: ",output)
-   
+
                     annotations = AnnotationCollection()
                     print("Annotation collections: ", annotations)
                     if output:
@@ -180,14 +186,17 @@ def main(argv):
                                 id_image=id_image
                             ))
                         annotations.save()
-                        print(".",end = '',flush=True)
-
- 
-        conn.job.update(status=Job.TERMINATED, progress=100, statusComment="Finished.")
-
+                        print(".",end = '',flush=True)                        
+    finally:
+        job.update(progress=100, statusComment="Run complete.")
+        shutil.rmtree(working_path, ignore_errors=True)
+        logging.debug("Leaving run()")
+        
 if __name__ == "__main__":
-    import sys
-    main(sys.argv[1:])
+    logging.debug("Command: %s", sys.argv)
+
+    with cytomine.CytomineJob.from_cli(sys.argv) as cyto_job:
+        run(cyto_job, cyto_job.parameters)
 
                   
 
