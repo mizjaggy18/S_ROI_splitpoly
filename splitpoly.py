@@ -182,7 +182,7 @@ def run(cyto_job, parameters):
                         annotation=Annotation(location=annotation_poly.wkt,
                                    id_image=id_image,
                                    id_project=id_project).save()
-                        AnnotationTerm(annotation.id, [id_term_poly]).save()
+                        AnnotationTerm(annotation.id, id_term_poly).save()
 #                         annotations.append(Annotation(location=annotation_poly.wkt,
 #                                                       id_image=id_image,
 #                                                       id_project=id_project,
