@@ -37,7 +37,7 @@ from tifffile import imread
 
 import cytomine
 from cytomine import Cytomine, CytomineJob
-from cytomine.models import Property, Annotation, AnnotationTerm, AnnotationCollection, Job, JobData, TermCollection
+from cytomine.models import Property, Annotation, AnnotationTerm, AnnotationCollection, Job, JobData, TermCollection, ImageInstanceCollection
 
 
 from PIL import Image
