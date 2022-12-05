@@ -206,11 +206,11 @@ def run(cyto_job, parameters):
                                 print("Output polygons: ", len(output_poly))                                
                                 save_annotations (output,id_image,id_project,id_term_poly)
 
-                        else:
-                            output = _quadrat_cut_geometry(roi_geometry, quadrat_width=poly_sides, min_num=1)
-                            output_poly = list(output)
-                            print("Output polygons: ", len(output_poly))
-                            save_annotations (output,id_image,id_project,id_term_poly)
+                    else:
+                        output = _quadrat_cut_geometry(roi_geometry, quadrat_width=poly_sides, min_num=1)
+                        output_poly = list(output)
+                        print("Output polygons: ", len(output_poly))
+                        save_annotations (output,id_image,id_project,id_term_poly)
                     
 #                     output = _quadrat_cut_geometry(roi_geometry, quadrat_width=poly_sides, min_num=1)  
 #                     output_poly = list(output)
