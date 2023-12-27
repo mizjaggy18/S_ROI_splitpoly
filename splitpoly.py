@@ -98,13 +98,17 @@ def _quadrat_cut_geometry(geometry, quadrat_width, min_num=3):
 def save_annotations (output,id_image,id_project,id_term_poly):
     annotations = AnnotationCollection()
     # print("Annotation collections: ", annotations)
-    for i, annotation_poly in enumerate(output): 
+    for i, annotation_poly in enumerate(output.geoms): 
         annotations.append(Annotation(location=annotation_poly.wkt,
                                     id_image=id_image,
                                     id_project=id_project,
                                     id_terms=[id_term_poly]))
-        print(".",end = '',flush=True)
-    annotations.save()
+        #print(".",end = '',flush=True)
+    try:
+        annotations.save()
+        print("Annotations saved.")
+    except:
+        print("Error saving annotations.")    
 
 def run(cyto_job, parameters):
     logging.info("----- ROI Split-poly v%s -----", __version__)
@@ -117,12 +121,6 @@ def run(cyto_job, parameters):
     job.update(status=Job.RUNNING, progress=10, statusComment="Initialization...")
 
     terms = TermCollection().fetch_with_filter("project", parameters.cytomine_id_project)    
-    print(terms)
-    for term in terms:
-        print("ID: {} | Name: {}".format(
-            term.id,
-            term.name
-        )) 
     job.update(status=Job.RUNNING, progress=20, statusComment="Terms collected...")
     
     images = ImageInstanceCollection().fetch_with_filter("project", project.id)    
@@ -197,44 +195,27 @@ def run(cyto_job, parameters):
                             outputlarge_poly = len(list(outputlarge))
                             print("Output large polygons: ", outputlarge_poly)
 
-                            for i, roi_large in enumerate(outputlarge):
+                            for i, roi_large in enumerate(outputlarge.geoms):
                                 print("Current ROI4096:", str(i), "out of: ", str(outputlarge_poly))
                                 job.update(status=Job.RUNNING, progress=60, statusComment="Split ROI-WSI into user-defined sides...")
 
                                 output = _quadrat_cut_geometry(roi_large, quadrat_width=poly_sides, min_num=1)
-                                output_poly = list(output)
+                                output_poly = list(output.geoms)
                                 print("Output polygons: ", len(output_poly))                                
                                 save_annotations (output,id_image,id_project,id_term_poly)
 
                         else:
                             output = _quadrat_cut_geometry(roi_geometry, quadrat_width=poly_sides, min_num=1)
-                            output_poly = list(output)
+                            output_poly = list(output.geoms)
                             print("Output polygons: ", len(output_poly))
                             save_annotations (output,id_image,id_project,id_term_poly)
 
                     else:
                         output = _quadrat_cut_geometry(roi_geometry, quadrat_width=poly_sides, min_num=1)
-                        output_poly = list(output)
+                        output_poly = list(output.geoms)
                         print("Output polygons: ", len(output_poly))
                         save_annotations (output,id_image,id_project,id_term_poly)
                     
-#                     output = _quadrat_cut_geometry(roi_geometry, quadrat_width=poly_sides, min_num=1)  
-#                     output_poly = list(output)
-#                     print("Output polygons: ", len(output_poly))
-                    
-#                     annotations = AnnotationCollection()
-#                     print("Annotation collections: ", annotations)
-#                     for annotation_poly in output: 
-#                         annotation=Annotation(location=annotation_poly.wkt,
-#                                    id_image=id_image,
-#                                    id_project=id_project).save()
-#                         AnnotationTerm(annotation.id, id_term_poly).save()
-# #                         annotations.append(Annotation(location=annotation_poly.wkt,
-# #                                                       id_image=id_image,
-# #                                                       id_project=id_project,
-# #                                                       id_terms=[id_term_poly]))
-# #                         print(".",end = '',flush=True)
-# #                     annotations.save()
                             
                                            
     finally:
