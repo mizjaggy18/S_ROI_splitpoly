@@ -149,17 +149,25 @@ def run(cyto_job, parameters):
         for id_image in list_imgs:
             print('Parameters (id_project, id_image, id_term, id_term_poly):',id_project, id_image, id_term, id_term_poly)
 
-            roi_annotations = AnnotationCollection()
-            roi_annotations.project = id_project
-            roi_annotations.image = id_image
-            roi_annotations.term = id_term
-            roi_annotations.showWKT = True
-            roi_annotations.showMeta = True
-            roi_annotations.showGIS = True
-            roi_annotations.showTerm = True
             if id_user:
-                roi_annotations.user = id_user
-            roi_annotations.fetch()
+                annotation_params = {
+                    "term": id_term,
+                    "project": id_project,
+                    "user": id_user,
+                    "image": id_image,
+                    "showWKT": True         
+                } 
+            else:
+                annotation_params = {
+                    "term": id_term,
+                    "project": id_project,
+                    "image": id_image,
+                    "showWKT": True         
+                }
+            
+            roi_user_annotations = AnnotationCollection(**annotation_params).fetch()
+            roi_algo_annotations = AnnotationCollection(**annotation_params, includeAlgo=True).fetch()
+            roi_annotations = roi_user_annotations + roi_algo_annotations
             print(roi_annotations)
 
             job.update(status=Job.RUNNING, progress=40, statusComment="Running splitpoly on ROI-WSI...")
